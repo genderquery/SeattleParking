@@ -9,6 +9,7 @@ import com.github.genderquery.arcgis.rest.model.MapServiceInfo;
 import com.github.genderquery.arcgis.rest.model.Size;
 import com.github.genderquery.arcgis.rest.model.SpatialReference;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
@@ -19,7 +20,7 @@ public interface MapService {
     Call<MapServiceInfo> serviceInfo();
 
     @GET("MapServer/export?f=image")
-    Call<Bitmap> export(
+    Call<ResponseBody> export(
             @Query("bbox") Envelope bounds,
             @Query("size") Size size,
             @Query("dpi") int dpi,

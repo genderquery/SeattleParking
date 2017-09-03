@@ -14,6 +14,7 @@ import org.osgeo.proj4j.CoordinateReferenceSystem;
 import org.osgeo.proj4j.ProjCoordinate;
 import org.osgeo.proj4j.UnknownAuthorityCodeException;
 import org.osgeo.proj4j.io.Proj4FileReader;
+import org.osgeo.proj4j.proj.Projection;
 
 import java.io.IOException;
 
@@ -22,7 +23,7 @@ public class CoordinateProjector {
 
     private static final String TAG = "CoordinateProjector";
 
-    private final org.osgeo.proj4j.proj.Projection projection;
+    private final Projection projection;
 
     public CoordinateProjector(@NonNull SpatialReference spatialReference) {
         this("ESRI", String.valueOf(spatialReference.wkid));
