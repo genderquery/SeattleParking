@@ -1,5 +1,6 @@
 package com.github.genderquery.arcgis.rest;
 
+import com.github.genderquery.moshi.ArcGisJsonAdapterFactory;
 import com.github.genderquery.moshi.SplitCollectionJsonAdapter;
 import com.squareup.moshi.Moshi;
 
@@ -21,15 +22,14 @@ public class ArcGisRestClient {
 
     public ArcGisRestClient(String url, OkHttpClient httpClient) {
         Moshi moshi = new Moshi.Builder()
-//                .add(ApiResponseJsonAdapter.FACTORY)
                 .add(SplitCollectionJsonAdapter.FACTORY)
+                .add(new ArcGisJsonAdapterFactory())
                 .build();
         retrofit = new Retrofit.Builder()
                 .client(httpClient)
                 .baseUrl(url)
                 .addConverterFactory(new ArcGisStringConverterFactory())
                 .addConverterFactory(new ErrorResponseConverterFactory())
-                .addConverterFactory(new BitmapConverterFactory())
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .build();
     }
