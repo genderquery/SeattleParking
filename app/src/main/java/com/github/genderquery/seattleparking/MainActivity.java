@@ -1,5 +1,6 @@
 package com.github.genderquery.seattleparking;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.WorkerThread;
 import android.support.v7.app.AppCompatActivity;
@@ -13,7 +14,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.TileOverlayOptions;
@@ -58,11 +58,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         this.googleMap = googleMap;
-        UiSettings uiSettings = googleMap.getUiSettings();
-        // map doesn't draw correctly when rotated
-        uiSettings.setRotateGesturesEnabled(false);
-        uiSettings.setTiltGesturesEnabled(false);
-        uiSettings.setCompassEnabled(false);
         googleMap.setMinZoomPreference(MIN_ZOOM);
         googleMap.setOnMapLoadedCallback(this);
         googleMap.setOnCameraMoveListener(this);
@@ -71,14 +66,17 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onMapLoaded() {
+        final Context context = this;
         // TODO clean this up
         new Thread(new Runnable() {
             @Override
             public void run() {
-                MapServiceInfo mapServiceInfo = getMapServiceInfo();
+                while (mapServiceInfo == null) {
+                    getMapServiceInfo();
+                }
                 CoordinateProjector coordinateProjector = getCoordinateProjector();
-                final ExportMapTileProvider exportMapTileProvider =
-                        new ExportMapTileProvider(mapService, coordinateProjector);
+                final LayerTileProvider layerTileProvider =
+                        new LayerTileProvider(context, mapService, coordinateProjector, 7);
                 final LatLngBounds fullExtent =
                         coordinateProjector.to(mapServiceInfo.fullExtent);
                 final LatLngBounds initialExtent =
@@ -89,26 +87,11 @@ public class MainActivity extends AppCompatActivity implements
                         googleMap.setLatLngBoundsForCameraTarget(fullExtent);
                         googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(initialExtent, 0));
                         googleMap.addTileOverlay(new TileOverlayOptions()
-                                .tileProvider(exportMapTileProvider));
+                                .tileProvider(layerTileProvider));
                     }
                 });
             }
         }).start();
-    }
-
-    @Override
-    public void onCameraIdle() {
-        CameraPosition cameraPosition = googleMap.getCameraPosition();
-        Log.v(TAG, cameraPosition.toString());
-    }
-
-    @Override
-    public void onCameraMove() {
-        CameraPosition cameraPosition = googleMap.getCameraPosition();
-        // addresses a bug where the zoom goes to NaN
-        if (Float.isNaN(cameraPosition.zoom)) {
-            googleMap.moveCamera(CameraUpdateFactory.zoomTo(MIN_ZOOM));
-        }
     }
 
     @WorkerThread
@@ -134,5 +117,20 @@ public class MainActivity extends AppCompatActivity implements
             coordinateProjector = new CoordinateProjector(mapServiceInfo.spatialReference);
         }
         return coordinateProjector;
+    }
+
+    @Override
+    public void onCameraIdle() {
+        CameraPosition cameraPosition = googleMap.getCameraPosition();
+        Log.v(TAG, cameraPosition.toString());
+    }
+
+    @Override
+    public void onCameraMove() {
+        CameraPosition cameraPosition = googleMap.getCameraPosition();
+        // addresses a bug where the zoom goes to NaN
+        if (Float.isNaN(cameraPosition.zoom)) {
+            googleMap.moveCamera(CameraUpdateFactory.zoomTo(MIN_ZOOM));
+        }
     }
 }
