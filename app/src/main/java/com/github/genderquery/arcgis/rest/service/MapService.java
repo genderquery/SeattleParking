@@ -32,7 +32,8 @@ public interface MapService {
     Call<QueryResponseBody> queryGeometry(
             @Path("layer") int layer,
             // TODO @Query("geometry") Geometry geometry
-            @Query("geometry") Envelope geometry
+            @Query("geometry") Envelope geometry,
             // TODO @Query("geometryType") GeometryType geometryType
+            @Query("outFields") String fields
     );
 }
