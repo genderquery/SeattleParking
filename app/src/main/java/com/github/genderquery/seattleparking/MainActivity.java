@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        mapService = SdotRestClient.getService(MapService.class);
+        mapService = SdotRestClient.getClient().getService(MapService.class);
         dpi = calculateScreenDpi();
     }
 
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements
                 }
                 CoordinateProjector coordinateProjector = getCoordinateProjector();
                 final LayerTileProvider layerTileProvider =
-                        new LayerTileProvider(context, mapService, coordinateProjector, 7);
+                        new LayerTileProvider(context, coordinateProjector, 7);
                 final LatLngBounds fullExtent =
                         coordinateProjector.to(mapServiceInfo.fullExtent);
                 final LatLngBounds initialExtent =
