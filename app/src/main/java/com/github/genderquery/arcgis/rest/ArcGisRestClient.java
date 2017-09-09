@@ -1,5 +1,6 @@
 package com.github.genderquery.arcgis.rest;
 
+import com.github.genderquery.moshi.ArcGisJsonAdapterFactory;
 import com.github.genderquery.moshi.SplitCollectionJsonAdapter;
 import com.squareup.moshi.Moshi;
 
@@ -12,6 +13,8 @@ import retrofit2.converter.moshi.MoshiConverterFactory;
 public class ArcGisRestClient {
 
     private static final String TAG = "ArcGisRestClient";
+    private final OkHttpClient httpClient;
+    private final Moshi moshi;
     private Retrofit retrofit;
     private HashMap<Class, Object> services = new HashMap<>();
 
@@ -20,18 +23,30 @@ public class ArcGisRestClient {
     }
 
     public ArcGisRestClient(String url, OkHttpClient httpClient) {
-        Moshi moshi = new Moshi.Builder()
-//                .add(ApiResponseJsonAdapter.FACTORY)
+        this.httpClient = httpClient;
+        moshi = new Moshi.Builder()
                 .add(SplitCollectionJsonAdapter.FACTORY)
+                .add(new ArcGisJsonAdapterFactory())
                 .build();
         retrofit = new Retrofit.Builder()
                 .client(httpClient)
                 .baseUrl(url)
                 .addConverterFactory(new ArcGisStringConverterFactory())
                 .addConverterFactory(new ErrorResponseConverterFactory())
-                .addConverterFactory(new BitmapConverterFactory())
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .build();
+    }
+
+    public OkHttpClient getHttpClient() {
+        return httpClient;
+    }
+
+    public Moshi getMoshi() {
+        return moshi;
+    }
+
+    public Retrofit getRetrofit() {
+        return retrofit;
     }
 
     @SuppressWarnings("unchecked")

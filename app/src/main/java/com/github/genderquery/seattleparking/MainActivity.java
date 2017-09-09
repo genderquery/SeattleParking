@@ -1,35 +1,26 @@
 package com.github.genderquery.seattleparking;
 
-import android.graphics.Bitmap;
+import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.annotation.WorkerThread;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.View;
 
-import com.github.genderquery.arcgis.rest.model.Envelope;
-import com.github.genderquery.arcgis.rest.model.ExportLayers;
-import com.github.genderquery.arcgis.rest.model.ImageFormat;
 import com.github.genderquery.arcgis.rest.model.MapServiceInfo;
-import com.github.genderquery.arcgis.rest.model.Size;
-import com.github.genderquery.arcgis.rest.model.SpatialReference;
 import com.github.genderquery.arcgis.rest.service.MapService;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.VisibleRegion;
+import com.google.android.gms.maps.model.TileOverlayOptions;
 
-import retrofit2.Call;
-import retrofit2.Callback;
+import java.io.IOException;
+
+import retrofit2.HttpException;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements
@@ -41,9 +32,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private GoogleMap googleMap;
     private CoordinateProjector coordinateProjector;
-    private LatLngBounds fullExtent;
     private MapService mapService;
-    private LatLngBounds initialExtent;
     private Projection mapProjection;
     private SupportMapFragment mapFragment;
     private int dpi;
@@ -57,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        mapService = SdotRestClient.getService(MapService.class);
+        mapService = SdotRestClient.getClient().getService(MapService.class);
         dpi = calculateScreenDpi();
     }
 
@@ -67,129 +56,73 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(final GoogleMap googleMap) {
         this.googleMap = googleMap;
-        UiSettings uiSettings = this.googleMap.getUiSettings();
-        // map doesn't draw correctly when rotated
-        uiSettings.setRotateGesturesEnabled(false);
-        uiSettings.setTiltGesturesEnabled(false);
-        uiSettings.setCompassEnabled(false);
-        this.googleMap.setMinZoomPreference(MIN_ZOOM);
-        this.googleMap.setOnMapLoadedCallback(this);
-        this.googleMap.setOnCameraMoveListener(this);
-        this.googleMap.setOnCameraIdleListener(this);
+        googleMap.setMinZoomPreference(MIN_ZOOM);
+        googleMap.setOnMapLoadedCallback(this);
+        googleMap.setOnCameraMoveListener(this);
+        googleMap.setOnCameraIdleListener(this);
     }
 
     @Override
     public void onMapLoaded() {
-        getMapServiceInfo();
+        final Context context = this;
+        // TODO clean this up
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (mapServiceInfo == null) {
+                    getMapServiceInfo();
+                }
+                CoordinateProjector coordinateProjector = getCoordinateProjector();
+                final LayerTileProvider layerTileProvider =
+                        new LayerTileProvider(context, coordinateProjector, 7);
+                final LatLngBounds fullExtent =
+                        coordinateProjector.to(mapServiceInfo.fullExtent);
+                final LatLngBounds initialExtent =
+                        coordinateProjector.to(mapServiceInfo.initialExtent);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        googleMap.setLatLngBoundsForCameraTarget(fullExtent);
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(initialExtent, 0));
+                        googleMap.addTileOverlay(new TileOverlayOptions()
+                                .tileProvider(layerTileProvider));
+                    }
+                });
+            }
+        }).start();
     }
 
-    private void getMapServiceInfo() {
-        if (mapServiceInfo != null) {
-            // a successful call was already made
-            return;
+    @WorkerThread
+    private MapServiceInfo getMapServiceInfo() {
+        if (mapServiceInfo == null) {
+            try {
+                Response<MapServiceInfo> response = mapService.serviceInfo().execute();
+                if (!response.isSuccessful()) {
+                    throw new HttpException(response);
+                }
+                mapServiceInfo = response.body();
+            } catch (IOException | HttpException e) {
+                Log.e(TAG, Log.getStackTraceString(e));
+            }
         }
-        mapService.serviceInfo().enqueue(new Callback<MapServiceInfo>() {
-            @Override
-            public void onResponse(@NonNull Call<MapServiceInfo> call,
-                                   @NonNull Response<MapServiceInfo> response) {
-                handleMapServiceInfoResponse(call, response);
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<MapServiceInfo> call, @NonNull Throwable t) {
-                handleResponseFailure(call, t);
-            }
-        });
+        return mapServiceInfo;
     }
 
-    private void handleMapServiceInfoResponse(@NonNull Call<MapServiceInfo> call,
-                                              @NonNull Response<MapServiceInfo> response) {
-        if (!response.isSuccessful()) {
-            Log.e(TAG, "Unexpected response " + response);
-            //TODO do something with response.errorBody()?
-            return;
-        }
-        MapServiceInfo body = response.body();
-        if (body == null) {
-            Log.e(TAG, "Empty body for response " + response);
-            return;
-        }
-        mapServiceInfo = body;
+    @WorkerThread
+    private CoordinateProjector getCoordinateProjector() {
         if (coordinateProjector == null) {
+            MapServiceInfo mapServiceInfo = getMapServiceInfo();
             coordinateProjector = new CoordinateProjector(mapServiceInfo.spatialReference);
         }
-        fullExtent = coordinateProjector.to(mapServiceInfo.fullExtent);
-        initialExtent = coordinateProjector.to(mapServiceInfo.initialExtent);
-        Log.i(TAG, "fullExtent " + fullExtent.toString());
-        Log.i(TAG, "initialExtent " + initialExtent.toString());
-        googleMap.setLatLngBoundsForCameraTarget(fullExtent);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(initialExtent, 0));
-    }
-
-    private void handleResponseFailure(@NonNull Call call, @NonNull Throwable t) {
-        // TODO add an interceptor or handler for this?
-        Log.e(TAG, Log.getStackTraceString(t));
+        return coordinateProjector;
     }
 
     @Override
     public void onCameraIdle() {
         CameraPosition cameraPosition = googleMap.getCameraPosition();
         Log.v(TAG, cameraPosition.toString());
-        updateGroundLayer();
-    }
-
-    private void updateGroundLayer() {
-        if (coordinateProjector == null) {
-            getMapServiceInfo();
-            return;
-        }
-        View mapView = mapFragment.getView();
-        if (mapView == null) {
-            // layout hasn't occurred yet
-            return;
-        }
-        mapProjection = googleMap.getProjection();
-        VisibleRegion visibleRegion = mapProjection.getVisibleRegion();
-        Envelope bounds = coordinateProjector.from(visibleRegion.latLngBounds);
-        Size size = new Size(mapView.getWidth(), mapView.getHeight());
-        SpatialReference spatialReference = SdotRestClient.WGS_1984_WEB_MERCATOR_AUXILIARY_SPHERE;
-        ExportLayers layers = new ExportLayers("show", new int[]{
-                SdotRestClient.LAYER_STREET_PARKING_BY_CATEGORY
-        });
-        mapService.export(bounds, size, dpi, ImageFormat.PNG8, layers, true)
-                .enqueue(new Callback<Bitmap>() {
-                    @Override
-                    public void onResponse(@NonNull Call<Bitmap> call,
-                                           @NonNull Response<Bitmap> response) {
-                        handleExportResponse(call, response);
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Call<Bitmap> call, @NonNull Throwable t) {
-                        handleResponseFailure(call, t);
-                    }
-                });
-    }
-
-    private void handleExportResponse(@NonNull Call<Bitmap> call,
-                                      @NonNull Response<Bitmap> response) {
-        if (!response.isSuccessful()) {
-            Log.e(TAG, "Unexpected response " + response);
-            //TODO do something with response.errorBody()?
-            return;
-        }
-        Bitmap body = response.body();
-        if (body == null) {
-            Log.e(TAG, "Empty body for response " + response);
-            return;
-        }
-        BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(body);
-        googleMap.clear();
-        googleMap.addGroundOverlay(new GroundOverlayOptions()
-                .image(bitmapDescriptor)
-                .positionFromBounds(mapProjection.getVisibleRegion().latLngBounds));
     }
 
     @Override
