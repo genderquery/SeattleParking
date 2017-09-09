@@ -21,11 +21,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Tile;
 import com.google.android.gms.maps.model.TileProvider;
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.HttpException;
 import retrofit2.Response;
@@ -36,21 +39,22 @@ public class LayerTileProvider implements TileProvider {
 
     // TODO make these runtime configurable
     private static final float TILE_SIZE = 256;
-    private static final int ZOOM_MIN = 15;
-    private static final int ZOOM_MAX = 16;
+    private static final int ZOOM_MIN = 16;
 
-    private final MapService mapService;
     private final CoordinateProjector coordinateProjector;
     private final DisplayMetrics displayMetrics;
     private final int layer;
     private final int tileWidth;
     private final int tileHeight;
     private final Paint linePaint;
+    private final SdotRestClient sdotClient;
+    private final MapService mapService;
+    private final Moshi moshi;
+    private final JsonAdapter<ParkingCategory> parkingCategoryJsonAdapter;
 
     // TODO too many dependencies? at least get them out of the constructor
-    public LayerTileProvider(@NonNull Context context, @NonNull MapService mapService,
+    public LayerTileProvider(@NonNull Context context,
                              @NonNull CoordinateProjector coordinateProjector, int layer) {
-        this.mapService = mapService;
         this.coordinateProjector = coordinateProjector;
         displayMetrics = context.getResources().getDisplayMetrics();
         this.layer = layer;
@@ -61,12 +65,17 @@ public class LayerTileProvider implements TileProvider {
         linePaint.setAntiAlias(true);
         linePaint.setStyle(Paint.Style.STROKE);
         linePaint.setStrokeCap(Paint.Cap.BUTT);
-        linePaint.setColor(Color.BLUE);
+        linePaint.setColor(Color.GRAY);
+
+        sdotClient = SdotRestClient.getClient();
+        mapService = sdotClient.getService(MapService.class);
+        moshi = sdotClient.getMoshi();
+        parkingCategoryJsonAdapter = moshi.adapter(ParkingCategory.class);
     }
 
     @Override
     public Tile getTile(int x, int y, int zoom) {
-        if (ZOOM_MIN < zoom && zoom < ZOOM_MAX) {
+        if (zoom < ZOOM_MIN) {
             return NO_TILE;
         }
 
@@ -75,8 +84,9 @@ public class LayerTileProvider implements TileProvider {
         // TODO better encapsulation
         QueryResponseBody body;
         try {
-            Response<QueryResponseBody> response = mapService.queryGeometry(layer, envelope)
-                    .execute();
+            Response<QueryResponseBody> response =
+                    mapService.queryGeometry(layer, envelope, "PARKING_CATEGORY")
+                            .execute();
             if (!response.isSuccessful()) {
                 throw new HttpException(response);
             }
@@ -100,6 +110,13 @@ public class LayerTileProvider implements TileProvider {
         linePaint.setStrokeWidth(zoom / 5f * displayMetrics.density);
 
         for (Feature feature : body.features) {
+            Map<String, String> attributes = feature.attributes;
+            ParkingCategory parkingCategory =
+                    parkingCategoryJsonAdapter.fromJsonValue(attributes.get("PARKING_CATEGORY"));
+            Symbol symbol = sdotClient.parkingCategorySymbols.get(parkingCategory);
+            linePaint.setColor(symbol.color);
+            linePaint.setPathEffect(symbol.pathEffect);
+            linePaint.setAlpha(0xff);
             Polyline geometry = (Polyline) feature.geometry;
             List<List<Point>> lines = geometry.getLines();
             for (List<Point> line : lines) {
