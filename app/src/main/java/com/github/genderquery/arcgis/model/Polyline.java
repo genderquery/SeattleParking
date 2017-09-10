@@ -22,26 +22,20 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.seattleparking;
+package com.github.genderquery.arcgis.model;
 
-import android.graphics.PathEffect;
-import android.support.annotation.ColorInt;
+import java.util.List;
 
-/**
- * Information used in the drawing of features.
- */
-public class Symbol {
+public class Polyline extends Geometry {
 
-  @ColorInt
-  public int color;
-  public PathEffect pathEffect;
+  private final List<List<Point>> paths;
 
-  public Symbol(@ColorInt int color) {
-    this.color = color;
+  public Polyline(List<List<Point>> paths) {
+    super(GeometryType.POLYLINE);
+    this.paths = paths;
   }
 
-  public Symbol(@ColorInt int color, PathEffect pathEffect) {
-    this.color = color;
-    this.pathEffect = pathEffect;
+  public List<List<Point>> getLines() {
+    return paths;
   }
 }
