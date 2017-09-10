@@ -22,26 +22,14 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.seattleparking;
-
-import android.graphics.PathEffect;
-import android.support.annotation.ColorInt;
+package com.github.genderquery.arcgis.model;
 
 /**
- * Information used in the drawing of features.
+ * The base class for all responses project the API. Errors are not always represented by an HTTP
+ * status code and instead the body of a JSON response may include an "error" object instead of the
+ * expected response.
  */
-public class Symbol {
+public abstract class ApiResponse {
 
-  @ColorInt
-  public int color;
-  public PathEffect pathEffect;
-
-  public Symbol(@ColorInt int color) {
-    this.color = color;
-  }
-
-  public Symbol(@ColorInt int color, PathEffect pathEffect) {
-    this.color = color;
-    this.pathEffect = pathEffect;
-  }
+  public ApiError error;
 }
