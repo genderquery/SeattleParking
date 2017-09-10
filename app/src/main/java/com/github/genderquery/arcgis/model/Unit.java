@@ -22,26 +22,23 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.seattleparking;
+package com.github.genderquery.arcgis.model;
 
-import android.graphics.PathEffect;
-import android.support.annotation.ColorInt;
+import com.squareup.moshi.Json;
 
-/**
- * Information used in the drawing of features.
- */
-public class Symbol {
-
-  @ColorInt
-  public int color;
-  public PathEffect pathEffect;
-
-  public Symbol(@ColorInt int color) {
-    this.color = color;
-  }
-
-  public Symbol(@ColorInt int color, PathEffect pathEffect) {
-    this.color = color;
-    this.pathEffect = pathEffect;
-  }
+public enum Unit {
+  
+  @Json(name = "esriUnknownUnits")UNKNOWN,
+  @Json(name = "esriInches")INCHES,
+  @Json(name = "esriPoints")POINTS,
+  @Json(name = "esriFeet")FEET,
+  @Json(name = "esriYards")YARDS,
+  @Json(name = "esriMiles")MILES,
+  @Json(name = "esriNauticalMiles")NAUTICAL_MILES,
+  @Json(name = "esriMillimeters")MILLIMETERS,
+  @Json(name = "esriCentimeters")CENTIMETERS,
+  @Json(name = "esriMeters")METERS,
+  @Json(name = "esriKilometers")KILOMETERS,
+  @Json(name = "esriDecimalDegrees")DECIMAL_DEGREES,
+  @Json(name = "esriDecimeters")DECIMETERS
 }
