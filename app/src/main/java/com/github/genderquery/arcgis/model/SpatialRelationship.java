@@ -22,26 +22,19 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.seattleparking;
+package com.github.genderquery.arcgis.model;
 
-import android.graphics.PathEffect;
-import android.support.annotation.ColorInt;
+import com.squareup.moshi.Json;
 
-/**
- * Information used in the drawing of features.
- */
-public class Symbol {
+public enum SpatialRelationship {
 
-  @ColorInt
-  public int color;
-  public PathEffect pathEffect;
-
-  public Symbol(@ColorInt int color) {
-    this.color = color;
-  }
-
-  public Symbol(@ColorInt int color, PathEffect pathEffect) {
-    this.color = color;
-    this.pathEffect = pathEffect;
-  }
+  @Json(name = "esriSpatialRelIntersects")INTERSECTS,
+  @Json(name = "esriSpatialRelContains")CONTAINS,
+  @Json(name = "esriSpatialRelCrosses")CROSSES,
+  @Json(name = "esriSpatialRelEnvelopeIntersects")ENVELOPE_INTERSECTS,
+  @Json(name = "esriSpatialRelIndexIntersects")INDEX_INTERSECTS,
+  @Json(name = "esriSpatialRelOverlaps")OVERLAPS,
+  @Json(name = "esriSpatialRelTouches")TOUCHES,
+  @Json(name = "esriSpatialRelWithin")WITHIN,
+  @Json(name = "esriSpatialRelRelation")RELATION
 }

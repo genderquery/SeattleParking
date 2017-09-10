@@ -22,26 +22,13 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.seattleparking;
+package com.github.genderquery.arcgis.model;
 
-import android.graphics.PathEffect;
-import android.support.annotation.ColorInt;
+import java.util.List;
 
-/**
- * Information used in the drawing of features.
- */
-public class Symbol {
+public class QueryResponseBody extends ApiResponse {
 
-  @ColorInt
-  public int color;
-  public PathEffect pathEffect;
-
-  public Symbol(@ColorInt int color) {
-    this.color = color;
-  }
-
-  public Symbol(@ColorInt int color, PathEffect pathEffect) {
-    this.color = color;
-    this.pathEffect = pathEffect;
-  }
+  public GeometryType geometryType;
+  public SpatialReference spatialReference;
+  public List<Feature> features;
 }
