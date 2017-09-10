@@ -26,8 +26,8 @@ package com.github.genderquery.seattleparking;
 
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
-import com.github.genderquery.arcgis.ArcGisRestClient;
-import com.github.genderquery.arcgis.model.SpatialReference;
+import com.github.genderquery.seattleparking.arcgis.ArcGisRestClient;
+import com.github.genderquery.seattleparking.arcgis.model.SpatialReference;
 import com.github.genderquery.seattleparking.model.ParkingCategory;
 import java.util.EnumMap;
 import okhttp3.OkHttpClient;

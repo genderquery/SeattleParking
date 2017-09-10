@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.arcgis.model;
+package com.github.genderquery.seattleparking.arcgis.model;
 
 import java.util.List;
 import java.util.Map;

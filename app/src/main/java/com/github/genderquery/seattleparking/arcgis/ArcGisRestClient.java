@@ -22,11 +22,11 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.arcgis;
+package com.github.genderquery.seattleparking.arcgis;
 
 import android.support.annotation.NonNull;
-import com.github.genderquery.arcgis.moshi.ArcGisJsonAdapterFactory;
-import com.github.genderquery.arcgis.retrofit.ArcGisStringConverterFactory;
+import com.github.genderquery.seattleparking.arcgis.moshi.ArcGisJsonAdapterFactory;
+import com.github.genderquery.seattleparking.arcgis.retrofit.ArcGisStringConverterFactory;
 import com.squareup.moshi.Moshi;
 import java.util.HashMap;
 import okhttp3.OkHttpClient;

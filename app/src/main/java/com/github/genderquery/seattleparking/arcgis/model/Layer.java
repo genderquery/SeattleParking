@@ -22,24 +22,14 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.arcgis.model;
+package com.github.genderquery.seattleparking.arcgis.model;
 
-public class Envelope extends Geometry {
+public class Layer {
 
-  public double xmin;
-  public double ymin;
-  public double xmax;
-  public double ymax;
-
-  public Envelope(Point min, Point max) {
-    this(min.x, min.y, max.x, max.y);
-  }
-
-  public Envelope(double xmin, double ymin, double xmax, double ymax) {
-    super(GeometryType.ENVELOPE);
-    this.xmin = xmin;
-    this.ymin = ymin;
-    this.xmax = xmax;
-    this.ymax = ymax;
-  }
+  public int id;
+  public String name;
+  public String type;
+  public String description;
+  public GeometryType geometryType;
+  public Envelope extent;
 }

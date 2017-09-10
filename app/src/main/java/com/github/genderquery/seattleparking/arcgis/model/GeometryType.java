@@ -22,14 +22,15 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.arcgis.model;
+package com.github.genderquery.seattleparking.arcgis.model;
 
-/**
- * The base class for all responses project the API. Errors are not always represented by an HTTP
- * status code and instead the body of a JSON response may include an "error" object instead of the
- * expected response.
- */
-public abstract class ApiResponse {
+import com.squareup.moshi.Json;
 
-  public ApiError error;
+public enum GeometryType {
+
+  @Json(name = "esriGeometryPoint")POINT,
+  @Json(name = "esriGeometryMultipoint")MULTIPOINT,
+  @Json(name = "esriGeometryPolyline")POLYLINE,
+  @Json(name = "esriGeometryPolygon")POLYGON,
+  @Json(name = "esriGeometryEnvelope")ENVELOPE
 }

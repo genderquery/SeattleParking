@@ -22,15 +22,14 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.arcgis.service;
+package com.github.genderquery.seattleparking.arcgis.service;
 
 import android.support.annotation.NonNull;
-import com.github.genderquery.arcgis.model.Geometry;
-import com.github.genderquery.arcgis.model.GeometryType;
-import com.github.genderquery.arcgis.model.Layer;
-import com.github.genderquery.arcgis.model.MapServiceInfo;
-import com.github.genderquery.arcgis.model.QueryResponseBody;
-import com.github.genderquery.arcgis.model.SpatialRelationship;
+import com.github.genderquery.seattleparking.arcgis.model.Geometry;
+import com.github.genderquery.seattleparking.arcgis.model.GeometryType;
+import com.github.genderquery.seattleparking.arcgis.model.MapServiceInfo;
+import com.github.genderquery.seattleparking.arcgis.model.QueryResponseBody;
+import com.github.genderquery.seattleparking.arcgis.model.SpatialRelationship;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;

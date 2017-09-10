@@ -22,15 +22,13 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.arcgis.model;
+package com.github.genderquery.seattleparking.arcgis.model;
 
-import com.squareup.moshi.Json;
+import java.util.List;
 
-public enum GeometryType {
+public class QueryResponseBody extends ApiResponse {
 
-  @Json(name = "esriGeometryPoint")POINT,
-  @Json(name = "esriGeometryMultipoint")MULTIPOINT,
-  @Json(name = "esriGeometryPolyline")POLYLINE,
-  @Json(name = "esriGeometryPolygon")POLYGON,
-  @Json(name = "esriGeometryEnvelope")ENVELOPE
+  public GeometryType geometryType;
+  public SpatialReference spatialReference;
+  public List<Feature> features;
 }

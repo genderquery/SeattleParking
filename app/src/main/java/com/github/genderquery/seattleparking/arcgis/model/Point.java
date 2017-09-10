@@ -22,19 +22,16 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.arcgis.model;
+package com.github.genderquery.seattleparking.arcgis.model;
 
-import com.squareup.moshi.Json;
+public class Point extends Geometry {
 
-public enum SpatialRelationship {
+  public double x;
+  public double y;
 
-  @Json(name = "esriSpatialRelIntersects")INTERSECTS,
-  @Json(name = "esriSpatialRelContains")CONTAINS,
-  @Json(name = "esriSpatialRelCrosses")CROSSES,
-  @Json(name = "esriSpatialRelEnvelopeIntersects")ENVELOPE_INTERSECTS,
-  @Json(name = "esriSpatialRelIndexIntersects")INDEX_INTERSECTS,
-  @Json(name = "esriSpatialRelOverlaps")OVERLAPS,
-  @Json(name = "esriSpatialRelTouches")TOUCHES,
-  @Json(name = "esriSpatialRelWithin")WITHIN,
-  @Json(name = "esriSpatialRelRelation")RELATION
+  public Point(double x, double y) {
+    super(GeometryType.POINT);
+    this.x = x;
+    this.y = y;
+  }
 }

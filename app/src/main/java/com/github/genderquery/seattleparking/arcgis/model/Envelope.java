@@ -22,16 +22,24 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.arcgis.model;
+package com.github.genderquery.seattleparking.arcgis.model;
 
-import java.util.Map;
+public class Envelope extends Geometry {
 
-/**
- * A feature represents an object at a specific geometry and may contain a list of layer-specific
- * attributes.
- */
-public class Feature {
+  public double xmin;
+  public double ymin;
+  public double xmax;
+  public double ymax;
 
-  public Map<String, String> attributes;
-  public Geometry geometry;
+  public Envelope(Point min, Point max) {
+    this(min.x, min.y, max.x, max.y);
+  }
+
+  public Envelope(double xmin, double ymin, double xmax, double ymax) {
+    super(GeometryType.ENVELOPE);
+    this.xmin = xmin;
+    this.ymin = ymin;
+    this.xmax = xmax;
+    this.ymax = ymax;
+  }
 }

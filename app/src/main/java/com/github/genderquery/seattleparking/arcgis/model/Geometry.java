@@ -22,13 +22,21 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.arcgis.model;
+package com.github.genderquery.seattleparking.arcgis.model;
 
-import java.util.List;
+/**
+ * Base class for geometries.
+ */
+public abstract class Geometry {
 
-public class QueryResponseBody extends ApiResponse {
-
-  public GeometryType geometryType;
+  private final GeometryType geometryType;
   public SpatialReference spatialReference;
-  public List<Feature> features;
+
+  Geometry(GeometryType geometryType) {
+    this.geometryType = geometryType;
+  }
+
+  public GeometryType getGeometryType() {
+    return geometryType;
+  }
 }

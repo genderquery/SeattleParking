@@ -26,9 +26,9 @@ package com.github.genderquery.seattleparking.util;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
-import com.github.genderquery.arcgis.model.Envelope;
-import com.github.genderquery.arcgis.model.Point;
-import com.github.genderquery.arcgis.model.SpatialReference;
+import com.github.genderquery.seattleparking.arcgis.model.Envelope;
+import com.github.genderquery.seattleparking.arcgis.model.Point;
+import com.github.genderquery.seattleparking.arcgis.model.SpatialReference;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import java.io.IOException;

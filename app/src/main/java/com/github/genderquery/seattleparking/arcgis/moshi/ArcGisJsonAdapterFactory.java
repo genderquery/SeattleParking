@@ -22,14 +22,14 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.arcgis.moshi;
+package com.github.genderquery.seattleparking.arcgis.moshi;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import com.github.genderquery.arcgis.model.Geometry;
-import com.github.genderquery.arcgis.model.Point;
-import com.github.genderquery.arcgis.model.Polyline;
+import com.github.genderquery.seattleparking.arcgis.model.Geometry;
+import com.github.genderquery.seattleparking.arcgis.model.Point;
+import com.github.genderquery.seattleparking.arcgis.model.Polyline;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.JsonReader;
 import com.squareup.moshi.JsonWriter;

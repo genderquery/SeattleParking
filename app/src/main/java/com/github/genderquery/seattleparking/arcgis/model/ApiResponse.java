@@ -22,13 +22,14 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.arcgis.model;
+package com.github.genderquery.seattleparking.arcgis.model;
 
-public class SpatialReference {
+/**
+ * The base class for all responses project the API. Errors are not always represented by an HTTP
+ * status code and instead the body of a JSON response may include an "error" object instead of the
+ * expected response.
+ */
+public abstract class ApiResponse {
 
-  public int wkid;
-
-  public SpatialReference(int wkid) {
-    this.wkid = wkid;
-  }
+  public ApiError error;
 }

@@ -22,14 +22,10 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.arcgis.model;
+package com.github.genderquery.seattleparking.arcgis.model;
 
-public class Layer {
+public class Table {
 
   public int id;
   public String name;
-  public String type;
-  public String description;
-  public GeometryType geometryType;
-  public Envelope extent;
 }

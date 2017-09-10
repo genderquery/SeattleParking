@@ -22,10 +22,13 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.arcgis.model;
+package com.github.genderquery.seattleparking.arcgis.model;
 
-public class Table {
+public class SpatialReference {
 
-  public int id;
-  public String name;
+  public int wkid;
+
+  public SpatialReference(int wkid) {
+    this.wkid = wkid;
+  }
 }

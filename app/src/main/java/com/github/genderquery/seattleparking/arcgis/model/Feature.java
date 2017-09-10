@@ -22,16 +22,16 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.arcgis.model;
+package com.github.genderquery.seattleparking.arcgis.model;
 
-public class Point extends Geometry {
+import java.util.Map;
 
-  public double x;
-  public double y;
+/**
+ * A feature represents an object at a specific geometry and may contain a list of layer-specific
+ * attributes.
+ */
+public class Feature {
 
-  public Point(double x, double y) {
-    super(GeometryType.POINT);
-    this.x = x;
-    this.y = y;
-  }
+  public Map<String, String> attributes;
+  public Geometry geometry;
 }

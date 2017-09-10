@@ -22,20 +22,11 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.arcgis.model;
+package com.github.genderquery.seattleparking.arcgis.model;
 
-import java.util.List;
+public class ApiError extends ApiResponse {
 
-public class Polyline extends Geometry {
-
-  private final List<List<Point>> paths;
-
-  public Polyline(List<List<Point>> paths) {
-    super(GeometryType.POLYLINE);
-    this.paths = paths;
-  }
-
-  public List<List<Point>> getLines() {
-    return paths;
-  }
+  public int code;
+  public String message;
+  public String[] details;
 }

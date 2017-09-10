@@ -22,16 +22,16 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.arcgis.retrofit;
+package com.github.genderquery.seattleparking.arcgis.retrofit;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import com.github.genderquery.arcgis.model.Envelope;
-import com.github.genderquery.arcgis.model.Geometry;
-import com.github.genderquery.arcgis.model.GeometryType;
-import com.github.genderquery.arcgis.model.Point;
-import com.github.genderquery.arcgis.model.SpatialReference;
-import com.github.genderquery.arcgis.model.SpatialRelationship;
+import com.github.genderquery.seattleparking.arcgis.model.Envelope;
+import com.github.genderquery.seattleparking.arcgis.model.Geometry;
+import com.github.genderquery.seattleparking.arcgis.model.GeometryType;
+import com.github.genderquery.seattleparking.arcgis.model.Point;
+import com.github.genderquery.seattleparking.arcgis.model.SpatialReference;
+import com.github.genderquery.seattleparking.arcgis.model.SpatialRelationship;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
