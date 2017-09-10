@@ -22,26 +22,24 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.seattleparking;
+package com.github.genderquery.arcgis.model;
 
-import android.graphics.PathEffect;
-import android.support.annotation.ColorInt;
+public class Envelope extends Geometry {
 
-/**
- * Information used in the drawing of features.
- */
-public class Symbol {
+  public double xmin;
+  public double ymin;
+  public double xmax;
+  public double ymax;
 
-  @ColorInt
-  public int color;
-  public PathEffect pathEffect;
-
-  public Symbol(@ColorInt int color) {
-    this.color = color;
+  public Envelope(Point min, Point max) {
+    this(min.x, min.y, max.x, max.y);
   }
 
-  public Symbol(@ColorInt int color, PathEffect pathEffect) {
-    this.color = color;
-    this.pathEffect = pathEffect;
+  public Envelope(double xmin, double ymin, double xmax, double ymax) {
+    super(GeometryType.ENVELOPE);
+    this.xmin = xmin;
+    this.ymin = ymin;
+    this.xmax = xmax;
+    this.ymax = ymax;
   }
 }

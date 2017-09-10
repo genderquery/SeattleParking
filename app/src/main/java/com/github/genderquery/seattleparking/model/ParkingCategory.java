@@ -22,26 +22,16 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.seattleparking;
+package com.github.genderquery.seattleparking.model;
 
-import android.graphics.PathEffect;
-import android.support.annotation.ColorInt;
+import com.squareup.moshi.Json;
 
-/**
- * Information used in the drawing of features.
- */
-public class Symbol {
+public enum ParkingCategory {
 
-  @ColorInt
-  public int color;
-  public PathEffect pathEffect;
-
-  public Symbol(@ColorInt int color) {
-    this.color = color;
-  }
-
-  public Symbol(@ColorInt int color, PathEffect pathEffect) {
-    this.color = color;
-    this.pathEffect = pathEffect;
-  }
+  @Json(name = "Carpool Parking")CARPOOL_PARKING,
+  @Json(name = "No Parking Allowed")NO_PARKING_ALLOWED,
+  @Json(name = "Paid Parking")PAID_PARKING,
+  @Json(name = "Restricted Parking Zone")RESTRICTED_PARKING_ZONE,
+  @Json(name = "Time Limited Parking")TIME_LIMITED_PARKING,
+  @Json(name = "Unrestricted Parking")UNRESTRICTED_PARKING,
 }
