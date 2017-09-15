@@ -56,5 +56,4 @@ public class EnvelopeTest {
     assertEquals(xmax, envelope.getXMax(), NO_DELTA);
     assertEquals(ymax, envelope.getYMax(), NO_DELTA);
   }
-
 }

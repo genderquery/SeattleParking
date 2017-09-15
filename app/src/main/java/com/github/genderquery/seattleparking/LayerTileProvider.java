@@ -131,7 +131,6 @@ public class LayerTileProvider implements TileProvider {
         boolean first = true;
         android.graphics.Path drawingPath = new android.graphics.Path();
         for (Point point : path) {
-          Log.d(TAG, point.toString());
           PointF pointF = pointForLngLat(point.getX(), point.getY(), zoom);
           // translation must be done here because translating the entire canvas
           // produces odd results
