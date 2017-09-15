@@ -25,6 +25,7 @@
 package com.github.genderquery.seattleparking.arcgis.moshi;
 
 import static com.github.genderquery.seattleparking.arcgis.geometry.Matchers.pathCollectionCloseTo;
+import static com.github.genderquery.seattleparking.projection.Constants.COORDINATE_DELTA;
 import static org.junit.Assert.assertThat;
 
 import com.github.genderquery.seattleparking.arcgis.geometry.Path;
@@ -40,8 +41,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class GeometryJsonAdapterFactoryTest {
-
-  private static final double COORDINATE_DELTA = 0.000001;
 
   private Moshi moshi;
 

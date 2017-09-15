@@ -80,7 +80,7 @@ public class EsriWgsCoordinateProjectorTest {
   }
 
   @Test
-  public void ProjectEnvelope() throws Exception {
+  public void projectEnvelope() throws Exception {
     Envelope actual = coordinateProjector.project(sampleEnvelopeWgs);
     assertThat(actual, envelopeCloseTo(sampleEnvelopeWaN, COORDINATE_DELTA));
   }

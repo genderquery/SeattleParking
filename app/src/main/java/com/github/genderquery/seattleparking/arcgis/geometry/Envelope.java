@@ -61,7 +61,7 @@ public final class Envelope extends Geometry {
 
   @Override
   public String toString() {
-    return "Envelope{ " +
+    return "Envelope{" +
         "xmin=" + xmin + ", " +
         "ymin=" + ymin + ", " +
         "xmax=" + xmax + ", " +

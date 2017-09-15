@@ -24,37 +24,37 @@
 
 package com.github.genderquery.seattleparking.projection;
 
-class Constants {
-
-  static final int STATE_PLANE_WA_N_WKID = 2926;
+public class Constants {
 
   /**
    * The maximum delta between expected and actual ordinates for which both numbers are still
-   * considered equal.
+   * considered equal. This value equates to approximately ±1 meter of error at 0 degrees latitude.
    */
-  static final double COORDINATE_DELTA = 0.000001;
+  public static final double COORDINATE_DELTA = 0.00001;
 
-  static final double SEATTLE_CENTER_LNG = -122.333056;
-  static final double SEATTLE_CENTER_LAT = 47.609722;
+  public static final int STATE_PLANE_WA_N_WKID = 2926;
 
-  static final double SEATTLE_SOUTHWEST_LNG = -122.43492783050658;
-  static final double SEATTLE_SOUTHWEST_LAT = 47.47051867180209;
-  static final double SEATTLE_NORTHEAST_LNG = -122.22077900394366;
-  static final double SEATTLE_NORTHEAST_LAT = 47.74848902648531;
+  public static final double SEATTLE_CENTER_LNG = -122.333056;
+  public static final double SEATTLE_CENTER_LAT = 47.609722;
+
+  public static final double SEATTLE_SOUTHWEST_LNG = -122.43492783050658;
+  public static final double SEATTLE_SOUTHWEST_LAT = 47.47051867180209;
+  public static final double SEATTLE_NORTHEAST_LNG = -122.22077900394366;
+  public static final double SEATTLE_NORTHEAST_LAT = 47.74848902648531;
 
   /**
    * The x ordinate in ftUS for the geographic center of the city of Seattle, WA in the State Plane
    * Washington North coordinate system.
    */
-  static final double SEATTLE_CENTER_X = 1270504.064320;
+  public static final double SEATTLE_CENTER_X = 1270504.064320;
   /**
    * The y ordinate in ftUS for the geographic center of the city of Seattle, WA in the State Plane
    * Washington North coordinate system.
    */
-  static final double SEATTLE_CENTER_Y = 226012.543482;
+  public static final double SEATTLE_CENTER_Y = 226012.543482;
 
-  static final double SEATTLE_SOUTHWEST_X = 1244323.81528143;
-  static final double SEATTLE_SOUTHWEST_Y = 175753.341380019;
-  static final double SEATTLE_NORTHEAST_X = 1299107.04302181;
-  static final double SEATTLE_NORTHEAST_Y = 276102.332567195;
+  public static final double SEATTLE_SOUTHWEST_X = 1244323.81528143;
+  public static final double SEATTLE_SOUTHWEST_Y = 175753.341380019;
+  public static final double SEATTLE_NORTHEAST_X = 1299107.04302181;
+  public static final double SEATTLE_NORTHEAST_Y = 276102.332567195;
 }
