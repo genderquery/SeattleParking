@@ -22,20 +22,39 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.seattleparking.arcgis.model;
+package com.github.genderquery.seattleparking.arcgis.geometry;
 
-import java.util.List;
+import android.support.annotation.NonNull;
+import java.util.Collection;
 
-public class Polyline extends Geometry {
+public final class Path extends GeometryCollection<Point> {
 
-  private final List<List<Point>> paths;
-
-  public Polyline(List<List<Point>> paths) {
-    super(GeometryType.POLYLINE);
-    this.paths = paths;
+  public Path() {
+    super();
   }
 
-  public List<List<Point>> getLines() {
-    return paths;
+  public Path(@NonNull Collection<Point> points) {
+    super(points);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("Path[");
+    boolean first = true;
+    for (Point point : this) {
+      if (first) {
+        first = false;
+      } else {
+        sb.append(",");
+      }
+      sb.append("(");
+      sb.append(point.getX());
+      sb.append(",");
+      sb.append(point.getY());
+      sb.append(")");
+    }
+    sb.append("]");
+    return sb.toString();
   }
 }

@@ -25,7 +25,7 @@
 package com.github.genderquery.seattleparking.arcgis;
 
 import android.support.annotation.NonNull;
-import com.github.genderquery.seattleparking.arcgis.moshi.ArcGisJsonAdapterFactory;
+import com.github.genderquery.seattleparking.arcgis.moshi.GeometryJsonAdapterFactory;
 import com.github.genderquery.seattleparking.arcgis.retrofit.ArcGisStringConverterFactory;
 import com.squareup.moshi.Moshi;
 import java.util.HashMap;
@@ -47,7 +47,7 @@ public class ArcGisRestClient {
   public ArcGisRestClient(@NonNull String url, @NonNull OkHttpClient httpClient) {
     this.httpClient = httpClient;
     moshi = new Moshi.Builder()
-        .add(new ArcGisJsonAdapterFactory())
+        .add(new GeometryJsonAdapterFactory())
         .build();
     retrofit = new Retrofit.Builder()
         .client(httpClient)

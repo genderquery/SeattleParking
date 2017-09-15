@@ -22,17 +22,49 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.seattleparking.arcgis.model;
+package com.github.genderquery.seattleparking.arcgis.geometry;
 
-import com.github.genderquery.seattleparking.arcgis.geometry.Geometry;
-import java.util.Map;
+import android.support.annotation.NonNull;
+import java.util.Collection;
 
-/**
- * A feature represents an object at a specific geometry and may contain a list of layer-specific
- * attributes.
- */
-public class Feature {
+public class PathCollection extends GeometryCollection<Path> {
 
-  public Map<String, String> attributes;
-  public Geometry geometry;
+  public PathCollection() {
+    super();
+  }
+
+  public PathCollection(@NonNull Collection<Path> geometries) {
+    super(geometries);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("PathCollection[");
+    boolean firstPath = true;
+    for (Path path : this) {
+      if (firstPath) {
+        firstPath = false;
+      } else {
+        sb.append(",");
+      }
+      sb.append("[");
+      boolean firstPoint = true;
+      for (Point point : path) {
+        if (firstPoint) {
+          firstPoint = false;
+        } else {
+          sb.append(",");
+        }
+        sb.append("(");
+        sb.append(point.getX());
+        sb.append(",");
+        sb.append(point.getY());
+        sb.append(")");
+      }
+      sb.append("]");
+    }
+    sb.append("]");
+    return sb.toString();
+  }
 }

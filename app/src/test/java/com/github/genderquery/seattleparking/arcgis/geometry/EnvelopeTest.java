@@ -22,17 +22,39 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.seattleparking.arcgis.model;
+package com.github.genderquery.seattleparking.arcgis.geometry;
 
-import com.github.genderquery.seattleparking.arcgis.geometry.Geometry;
-import java.util.Map;
+import static org.junit.Assert.assertEquals;
 
-/**
- * A feature represents an object at a specific geometry and may contain a list of layer-specific
- * attributes.
- */
-public class Feature {
+import org.junit.Test;
 
-  public Map<String, String> attributes;
-  public Geometry geometry;
+public class EnvelopeTest {
+
+  private static final double NO_DELTA = 0.0;
+
+  /**
+   * The API specifies that empty values should be NaN.
+   */
+  @Test
+  public void testDefaultConstructor() throws Exception {
+    Envelope envelope = new Envelope();
+    assertEquals(Double.NaN, envelope.getXMin(), NO_DELTA);
+    assertEquals(Double.NaN, envelope.getYMin(), NO_DELTA);
+    assertEquals(Double.NaN, envelope.getXMax(), NO_DELTA);
+    assertEquals(Double.NaN, envelope.getYMax(), NO_DELTA);
+  }
+
+  @Test
+  public void testConstructor() throws Exception {
+    double xmin = 1;
+    double ymin = 2;
+    double xmax = 3;
+    double ymax = 4;
+    Envelope envelope = new Envelope(xmin, ymin, xmax, ymax);
+    assertEquals(xmin, envelope.getXMin(), NO_DELTA);
+    assertEquals(ymin, envelope.getYMin(), NO_DELTA);
+    assertEquals(xmax, envelope.getXMax(), NO_DELTA);
+    assertEquals(ymax, envelope.getYMax(), NO_DELTA);
+  }
+
 }

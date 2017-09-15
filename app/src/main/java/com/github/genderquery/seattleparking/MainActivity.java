@@ -30,15 +30,17 @@ import android.support.annotation.WorkerThread;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import com.github.genderquery.seattleparking.arcgis.service.MapService;
+import com.github.genderquery.seattleparking.arcgis.geometry.Envelope;
 import com.github.genderquery.seattleparking.arcgis.model.MapServiceInfo;
-import com.github.genderquery.seattleparking.util.CoordinateProjector;
+import com.github.genderquery.seattleparking.arcgis.service.MapService;
+import com.github.genderquery.seattleparking.projection.EsriWgsCoordinateProjector;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import java.io.IOException;
@@ -53,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements
   private static final float MIN_ZOOM = 11;
 
   private GoogleMap googleMap;
-  private CoordinateProjector coordinateProjector;
+  private EsriWgsCoordinateProjector coordinateProjector;
   private MapService mapService;
   private Projection mapProjection;
   private SupportMapFragment mapFragment;
@@ -93,21 +95,25 @@ public class MainActivity extends AppCompatActivity implements
     new Thread(new Runnable() {
       @Override
       public void run() {
-        while (mapServiceInfo == null) {
-          getMapServiceInfo();
-        }
-        CoordinateProjector coordinateProjector = getCoordinateProjector();
+        getMapServiceInfo();
+        getCoordinateProjector();
         final LayerTileProvider layerTileProvider =
             new LayerTileProvider(context, coordinateProjector, 7);
-        final LatLngBounds fullExtent =
+        final Envelope fullExtent =
             coordinateProjector.inverseProject(mapServiceInfo.fullExtent);
-        final LatLngBounds initialExtent =
+        final Envelope initialExtent =
             coordinateProjector.inverseProject(mapServiceInfo.initialExtent);
+        final LatLngBounds latLngBoundsFullExtent = new LatLngBounds(
+            new LatLng(fullExtent.getYMin(), fullExtent.getXMin()),
+            new LatLng(fullExtent.getYMax(), fullExtent.getXMax()));
+        final LatLngBounds latLngBoundsInitialExtent = new LatLngBounds(
+            new LatLng(initialExtent.getYMin(), initialExtent.getXMin()),
+            new LatLng(initialExtent.getYMax(), initialExtent.getXMax()));
         runOnUiThread(new Runnable() {
           @Override
           public void run() {
-            googleMap.setLatLngBoundsForCameraTarget(fullExtent);
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(initialExtent, 0));
+            googleMap.setLatLngBoundsForCameraTarget(latLngBoundsFullExtent);
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(latLngBoundsInitialExtent, 0));
             googleMap.addTileOverlay(new TileOverlayOptions()
                 .tileProvider(layerTileProvider));
           }
@@ -133,10 +139,10 @@ public class MainActivity extends AppCompatActivity implements
   }
 
   @WorkerThread
-  private CoordinateProjector getCoordinateProjector() {
+  private EsriWgsCoordinateProjector getCoordinateProjector() {
     if (coordinateProjector == null) {
       MapServiceInfo mapServiceInfo = getMapServiceInfo();
-      coordinateProjector = new CoordinateProjector(mapServiceInfo.spatialReference);
+      coordinateProjector = new EsriWgsCoordinateProjector(mapServiceInfo.spatialReference);
     }
     return coordinateProjector;
   }

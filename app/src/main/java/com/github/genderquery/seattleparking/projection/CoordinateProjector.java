@@ -22,17 +22,15 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.seattleparking.arcgis.model;
+package com.github.genderquery.seattleparking.projection;
 
-import com.github.genderquery.seattleparking.arcgis.geometry.Geometry;
-import java.util.Map;
+import android.support.annotation.NonNull;
+import org.osgeo.proj4j.ProjCoordinate;
 
-/**
- * A feature represents an object at a specific geometry and may contain a list of layer-specific
- * attributes.
- */
-public class Feature {
+public interface CoordinateProjector {
 
-  public Map<String, String> attributes;
-  public Geometry geometry;
+  ProjCoordinate project(@NonNull ProjCoordinate src);
+
+  ProjCoordinate inverseProject(@NonNull ProjCoordinate src);
+
 }

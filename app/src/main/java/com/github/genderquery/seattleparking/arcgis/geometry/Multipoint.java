@@ -22,21 +22,18 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.seattleparking.arcgis.model;
+package com.github.genderquery.seattleparking.arcgis.geometry;
 
-/**
- * Base class for geometries.
- */
-public abstract class Geometry {
+import android.support.annotation.NonNull;
+import java.util.Collection;
 
-  private final GeometryType geometryType;
-  public SpatialReference spatialReference;
+public final class Multipoint extends GeometryCollection<Point> {
 
-  Geometry(GeometryType geometryType) {
-    this.geometryType = geometryType;
+  public Multipoint() {
+    super();
   }
 
-  public GeometryType getGeometryType() {
-    return geometryType;
+  public Multipoint(@NonNull Collection<Point> geometries) {
+    super(geometries);
   }
 }

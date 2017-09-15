@@ -26,10 +26,9 @@ package com.github.genderquery.seattleparking.arcgis.retrofit;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import com.github.genderquery.seattleparking.arcgis.model.Envelope;
-import com.github.genderquery.seattleparking.arcgis.model.Geometry;
+import com.github.genderquery.seattleparking.arcgis.geometry.Envelope;
+import com.github.genderquery.seattleparking.arcgis.geometry.Geometry;
 import com.github.genderquery.seattleparking.arcgis.model.GeometryType;
-import com.github.genderquery.seattleparking.arcgis.model.Point;
 import com.github.genderquery.seattleparking.arcgis.model.SpatialReference;
 import com.github.genderquery.seattleparking.arcgis.model.SpatialRelationship;
 import java.io.IOException;
@@ -40,7 +39,8 @@ import retrofit2.Converter;
 import retrofit2.Retrofit;
 
 /**
- * Converts objects used in parameters inverseProject endpoints inverseProject their string representation used in URL
+ * Converts objects used in parameters inverseProject endpoints inverseProject their string
+ * representation used in URL
  * parameters.
  */
 public class ArcGisStringConverterFactory extends Converter.Factory {
@@ -71,33 +71,22 @@ public class ArcGisStringConverterFactory extends Converter.Factory {
   private static class GeometryConverter implements Converter<Geometry, String> {
 
     @Override
-    public String convert(@NonNull Geometry value) throws IOException {
-      GeometryType geometryType = value.getGeometryType();
-      switch (geometryType) {
-        case ENVELOPE:
-          return convertEnvelope((Envelope) value);
-        case POINT:
-          return convertPoint((Point) value);
-        default:
-          throw new UnsupportedOperationException(geometryType + "not supported");
+    public String convert(@NonNull Geometry geometry) throws IOException {
+      if (geometry instanceof Envelope) {
+        Envelope envelope = (Envelope) geometry;
+        return String.format(Locale.US, "%f,%f,%f,%f",
+            envelope.getXMin(), envelope.getYMin(), envelope.getXMax(), envelope.getYMax());
+      } else {
+        throw new UnsupportedOperationException("Unsupported geometry " + geometry);
       }
-    }
-
-    String convertEnvelope(@NonNull Envelope value) throws IOException {
-      return String.format(Locale.US,
-          "%f,%f,%f,%f", value.xmin, value.ymin, value.xmax, value.ymax);
-    }
-
-    String convertPoint(@NonNull Point value) throws IOException {
-      return String.format(Locale.US, "%f,%f", value.x, value.y);
     }
   }
 
   private static class GeometryTypeConverter implements Converter<GeometryType, String> {
 
     @Override
-    public String convert(@NonNull GeometryType value) throws IOException {
-      switch (value) {
+    public String convert(@NonNull GeometryType geometryType) throws IOException {
+      switch (geometryType) {
         case POINT:
           return "esriGeometryPoint";
         case MULTIPOINT:
@@ -109,7 +98,7 @@ public class ArcGisStringConverterFactory extends Converter.Factory {
         case ENVELOPE:
           return "esriGeometryEnvelope";
         default:
-          throw new UnsupportedOperationException(value + "not supported");
+          throw new UnsupportedOperationException("Unsupported GeometryType " + geometryType);
       }
     }
   }
@@ -122,7 +111,8 @@ public class ArcGisStringConverterFactory extends Converter.Factory {
     }
   }
 
-  private static class SpatialRelationshipConverter implements Converter<SpatialRelationship, String> {
+  private static class SpatialRelationshipConverter implements
+      Converter<SpatialRelationship, String> {
 
     @Override
     public String convert(@NonNull SpatialRelationship value) throws IOException {

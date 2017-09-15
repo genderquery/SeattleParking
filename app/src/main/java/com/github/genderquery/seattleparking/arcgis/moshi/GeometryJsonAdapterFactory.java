@@ -26,10 +26,14 @@ package com.github.genderquery.seattleparking.arcgis.moshi;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
-import com.github.genderquery.seattleparking.arcgis.model.Geometry;
-import com.github.genderquery.seattleparking.arcgis.model.Point;
-import com.github.genderquery.seattleparking.arcgis.model.Polyline;
+import com.github.genderquery.seattleparking.arcgis.geometry.Envelope;
+import com.github.genderquery.seattleparking.arcgis.geometry.Geometry;
+import com.github.genderquery.seattleparking.arcgis.geometry.Multipoint;
+import com.github.genderquery.seattleparking.arcgis.geometry.Path;
+import com.github.genderquery.seattleparking.arcgis.geometry.PathCollection;
+import com.github.genderquery.seattleparking.arcgis.geometry.Point;
+import com.github.genderquery.seattleparking.arcgis.geometry.Polygon;
+import com.github.genderquery.seattleparking.arcgis.geometry.Polyline;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.JsonReader;
 import com.squareup.moshi.JsonWriter;
@@ -38,14 +42,9 @@ import com.squareup.moshi.Types;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
-/**
- * Converts JSON objects found in the API that Moshi cannot otherwise convert on its own.
- */
-public class ArcGisJsonAdapterFactory implements JsonAdapter.Factory {
+public class GeometryJsonAdapterFactory implements JsonAdapter.Factory {
 
   @Nullable
   @Override
@@ -53,15 +52,13 @@ public class ArcGisJsonAdapterFactory implements JsonAdapter.Factory {
       @NonNull Set<? extends Annotation> annotations,
       @NonNull Moshi moshi) {
     Class<?> rawType = Types.getRawType(type);
-    if (rawType.isAssignableFrom(Geometry.class)) {
+    if (Geometry.class.isAssignableFrom(rawType)) {
       return new GeometryJsonAdapter();
     }
     return null;
   }
 
   private static class GeometryJsonAdapter extends JsonAdapter<Geometry> {
-
-    private static final String TAG = "GeometryJsonAdapter";
 
     @Nullable
     @Override
@@ -70,63 +67,96 @@ public class ArcGisJsonAdapterFactory implements JsonAdapter.Factory {
         return null;
       }
       Geometry geometry = null;
-      double x = 0;
-      double y = 0;
+      Double x = null;
+      double y = Double.NaN;
+      Double xmin = null;
+      double ymin = Double.NaN;
+      double xmax = Double.NaN;
+      double ymax = Double.NaN;
       in.beginObject();
       while (in.hasNext()) {
         switch (in.nextName()) {
-          // TODO support m and z
           case "x":
             x = in.nextDouble();
             break;
           case "y":
             y = in.nextDouble();
             break;
+          case "xmin":
+            xmin = in.nextDouble();
+            break;
+          case "ymin":
+            ymin = in.nextDouble();
+            break;
+          case "xmax":
+            xmax = in.nextDouble();
+            break;
+          case "ymax":
+            ymax = in.nextDouble();
+            break;
+          case "points":
+            geometry = parsePoints(in);
+            break;
           case "paths":
-            geometry = parsePaths(in);
+            geometry = parsePaths(in, new Polyline());
+            break;
+          case "rings":
+            geometry = parsePaths(in, new Polygon());
             break;
           default:
-            Log.d(TAG, "Skipping " + in.getPath());
             in.skipValue();
         }
       }
       in.endObject();
-      if (geometry == null) {
+      if (x != null) {
         return new Point(x, y);
+      }
+      if (xmin != null) {
+        return new Envelope(xmin, ymin, xmax, ymax);
       }
       return geometry;
     }
 
-    @NonNull
-    private Polyline parsePaths(@NonNull JsonReader in) throws IOException {
-      List<List<Point>> paths = new ArrayList<>();
+    private Multipoint parsePoints(@NonNull JsonReader in)
+        throws IOException {
+      Multipoint multipoint = new Multipoint();
       in.beginArray();
       while (in.hasNext()) {
-        paths.add(parsePoints(in));
+        multipoint.add(parsePointArray(in));
       }
       in.endArray();
-      return new Polyline(paths);
+      return multipoint;
     }
 
-    @NonNull
-    private List<Point> parsePoints(JsonReader in) throws IOException {
-      List<Point> points = new ArrayList<>();
+    private Point parsePointArray(@NonNull JsonReader in)
+        throws IOException {
+      double x;
+      double y;
       in.beginArray();
+      x = in.nextDouble();
+      y = in.nextDouble();
       while (in.hasNext()) {
-        points.add(parsePoint(in));
+        // skip z and m values
+        in.skipValue();
       }
-      in.endArray();
-      return points;
-    }
-
-    @NonNull
-    private Point parsePoint(@NonNull JsonReader in) throws IOException {
-      in.beginArray();
-      // TODO support m and z
-      double x = in.nextDouble();
-      double y = in.nextDouble();
       in.endArray();
       return new Point(x, y);
+    }
+
+    private PathCollection parsePaths(@NonNull JsonReader in, @NonNull PathCollection paths)
+        throws IOException {
+      in.beginArray();
+      while (in.hasNext()) {
+        Path path = new Path();
+        in.beginArray();
+        while (in.hasNext()) {
+          path.add(parsePointArray(in));
+        }
+        in.endArray();
+        paths.add(path);
+      }
+      in.endArray();
+      return paths;
     }
 
     @Override

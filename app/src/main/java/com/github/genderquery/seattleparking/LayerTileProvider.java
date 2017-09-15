@@ -5,21 +5,21 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.PointF;
 import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import com.github.genderquery.seattleparking.arcgis.model.Envelope;
+import com.github.genderquery.seattleparking.arcgis.geometry.Envelope;
+import com.github.genderquery.seattleparking.arcgis.geometry.Path;
+import com.github.genderquery.seattleparking.arcgis.geometry.Point;
+import com.github.genderquery.seattleparking.arcgis.geometry.Polyline;
 import com.github.genderquery.seattleparking.arcgis.model.Feature;
 import com.github.genderquery.seattleparking.arcgis.model.GeometryType;
-import com.github.genderquery.seattleparking.arcgis.model.Point;
-import com.github.genderquery.seattleparking.arcgis.model.Polyline;
 import com.github.genderquery.seattleparking.arcgis.model.QueryResponseBody;
 import com.github.genderquery.seattleparking.arcgis.model.SpatialRelationship;
 import com.github.genderquery.seattleparking.arcgis.service.MapService;
 import com.github.genderquery.seattleparking.model.ParkingCategory;
-import com.github.genderquery.seattleparking.util.CoordinateProjector;
+import com.github.genderquery.seattleparking.projection.EsriWgsCoordinateProjector;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Tile;
@@ -29,7 +29,6 @@ import com.squareup.moshi.Moshi;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.List;
 import java.util.Map;
 import retrofit2.HttpException;
 import retrofit2.Response;
@@ -42,7 +41,6 @@ public class LayerTileProvider implements TileProvider {
   private static final float TILE_SIZE = 256;
   private static final int ZOOM_MIN = 16;
 
-  private final CoordinateProjector coordinateProjector;
   private final DisplayMetrics displayMetrics;
   private final int layer;
   private final int tileWidth;
@@ -52,10 +50,11 @@ public class LayerTileProvider implements TileProvider {
   private final MapService mapService;
   private final Moshi moshi;
   private final JsonAdapter<ParkingCategory> parkingCategoryJsonAdapter;
+  private final EsriWgsCoordinateProjector coordinateProjector;
 
   // TODO too many dependencies? at least get them out of the constructor
   public LayerTileProvider(@NonNull Context context,
-      @NonNull CoordinateProjector coordinateProjector, int layer) {
+      @NonNull EsriWgsCoordinateProjector coordinateProjector, int layer) {
     this.coordinateProjector = coordinateProjector;
     displayMetrics = context.getResources().getDisplayMetrics();
     this.layer = layer;
@@ -81,7 +80,9 @@ public class LayerTileProvider implements TileProvider {
     }
 
     LatLngBounds latLngBounds = latLngBoundsFromTileCoordinate(x, y, zoom);
-    Envelope envelope = coordinateProjector.project(latLngBounds);
+    Envelope envelope = coordinateProjector.project(new Envelope(
+        latLngBounds.southwest.longitude, latLngBounds.southwest.latitude,
+        latLngBounds.northeast.longitude, latLngBounds.northeast.latitude));
     // TODO better encapsulation
     QueryResponseBody body;
     try {
@@ -107,6 +108,9 @@ public class LayerTileProvider implements TileProvider {
     } catch (IOException e) {
       Log.e(TAG, Log.getStackTraceString(e));
       return NO_TILE;
+    } catch (Throwable t) {
+      Log.e(TAG, Log.getStackTraceString(t));
+      return NO_TILE;
     }
     Bitmap bitmap = Bitmap.createBitmap(tileWidth, tileHeight, Bitmap.Config.ARGB_8888);
     Canvas canvas = new Canvas(bitmap);
@@ -121,25 +125,26 @@ public class LayerTileProvider implements TileProvider {
       linePaint.setColor(symbol.color);
       linePaint.setPathEffect(symbol.pathEffect);
       linePaint.setAlpha(0xff);
-      Polyline geometry = (Polyline) feature.geometry;
-      List<List<Point>> lines = geometry.getLines();
-      for (List<Point> line : lines) {
-        Path path = new Path();
-        for (int i = 0; i < line.size(); i++) {
-          Point point = line.get(i);
-          LatLng latLng = coordinateProjector.inverseProject(new Point(point.x, point.y));
-          PointF pointF = pointForLatLng(latLng.latitude, latLng.longitude, zoom);
+      Polyline polyline = coordinateProjector.inverseProject((Polyline) feature.geometry);
+      Log.d(TAG, String.valueOf(polyline.size()));
+      for (Path path : polyline) {
+        boolean first = true;
+        android.graphics.Path drawingPath = new android.graphics.Path();
+        for (Point point : path) {
+          Log.d(TAG, point.toString());
+          PointF pointF = pointForLngLat(point.getX(), point.getY(), zoom);
           // translation must be done here because translating the entire canvas
           // produces odd results
           pointF.offset(-x * tileWidth, -y * tileWidth);
-          if (i == 0) {
-            path.moveTo(pointF.x, pointF.y);
+          if (first) {
+            first = false;
+            drawingPath.moveTo(pointF.x, pointF.y);
           } else {
-            path.lineTo(pointF.x, pointF.y);
+            drawingPath.lineTo(pointF.x, pointF.y);
           }
         }
         // drawPath is faster than drawLine or drawLines
-        canvas.drawPath(path, linePaint);
+        canvas.drawPath(drawingPath, linePaint);
       }
     }
 
@@ -168,9 +173,9 @@ public class LayerTileProvider implements TileProvider {
    * Returns world pixel coordinates from a given latitude, longitude, and zoom level
    * https://en.wikipedia.org/wiki/Web_Mercator#Formulas
    */
-  private PointF pointForLatLng(double lat, double lng, int zoom) {
-    double lng_rad = Math.toRadians(lng);
-    double lat_rad = Math.toRadians(lat);
+  private PointF pointForLngLat(double longitude, double latitude, int zoom) {
+    double lng_rad = Math.toRadians(longitude);
+    double lat_rad = Math.toRadians(latitude);
     double n = (tileWidth / 2.0 / Math.PI) * Math.pow(2.0, zoom);
     double x = n * (lng_rad + Math.PI);
     double y = n * (Math.PI - Math.log(Math.tan(Math.PI / 4.0 + lat_rad / 2.0)));

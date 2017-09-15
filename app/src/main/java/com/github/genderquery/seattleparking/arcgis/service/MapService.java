@@ -25,7 +25,7 @@
 package com.github.genderquery.seattleparking.arcgis.service;
 
 import android.support.annotation.NonNull;
-import com.github.genderquery.seattleparking.arcgis.model.Geometry;
+import com.github.genderquery.seattleparking.arcgis.geometry.Geometry;
 import com.github.genderquery.seattleparking.arcgis.model.GeometryType;
 import com.github.genderquery.seattleparking.arcgis.model.MapServiceInfo;
 import com.github.genderquery.seattleparking.arcgis.model.QueryResponseBody;

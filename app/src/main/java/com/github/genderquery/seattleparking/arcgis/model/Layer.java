@@ -24,6 +24,8 @@
 
 package com.github.genderquery.seattleparking.arcgis.model;
 
+import com.github.genderquery.seattleparking.arcgis.geometry.Envelope;
+
 public class Layer {
 
   public int id;

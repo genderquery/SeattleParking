@@ -22,17 +22,18 @@
  * SOFTWARE.
  */
 
-package com.github.genderquery.seattleparking.arcgis.model;
+package com.github.genderquery.seattleparking.arcgis.geometry;
 
-import com.github.genderquery.seattleparking.arcgis.geometry.Geometry;
-import java.util.Map;
+import android.support.annotation.NonNull;
+import java.util.Collection;
 
-/**
- * A feature represents an object at a specific geometry and may contain a list of layer-specific
- * attributes.
- */
-public class Feature {
+public final class Polygon extends PathCollection {
 
-  public Map<String, String> attributes;
-  public Geometry geometry;
+  public Polygon() {
+    super();
+  }
+
+  public Polygon(@NonNull Collection<Path> rings) {
+    super(rings);
+  }
 }

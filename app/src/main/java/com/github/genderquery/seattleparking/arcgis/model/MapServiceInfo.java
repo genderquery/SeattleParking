@@ -24,6 +24,7 @@
 
 package com.github.genderquery.seattleparking.arcgis.model;
 
+import com.github.genderquery.seattleparking.arcgis.geometry.Envelope;
 import java.util.List;
 import java.util.Map;
 
